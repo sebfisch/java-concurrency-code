@@ -8,13 +8,15 @@ services:
       # Adjust the build args to reflect your local setup
       args:
         JAVA_VERSION: 11
-        UID: 501
-        GID: 501
+        # UID: 501
+        # GID: 501
     hostname: java-dev
     command: tmux -u new -s java-parcon-code
     environment:
       # Adjust to reflect your own timezone
       - TZ=Europe/Berlin
+      # Adjust to reflect your own X server
+      - DISPLAY=docker.for.win.localhost:0.0
         # The following line disables class data sharing for the JVM
         # which leads to a warning message on some architectures.
         # - JAVA_OPTIONS=-Xshare:off
