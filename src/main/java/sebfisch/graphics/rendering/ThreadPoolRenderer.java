@@ -3,25 +3,19 @@ package sebfisch.graphics.rendering;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-import sebfisch.fractals.FractalApp;
 import sebfisch.graphics.Box;
 
 public class ThreadPoolRenderer extends RendererAdapter {
-    private static ExecutorService pool;
-
     public ThreadPoolRenderer() {
-        super(new SingleThreadedRenderer());
+        super(new StreamRenderer());
     }
 
     @Override
     public boolean render(final Box pixels) {
-        if (pool == null) {
-            pool = Executors.newFixedThreadPool(FractalApp.THREADS);
-        }
-        return join(fork(pool, pixels));
+        return join(fork(ForkJoinPool.commonPool(), pixels));
     }
 
     private List<Future<?>> fork(final ExecutorService pool, final Box pixels) {

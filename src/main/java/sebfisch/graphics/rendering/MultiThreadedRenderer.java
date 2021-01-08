@@ -8,7 +8,7 @@ public class MultiThreadedRenderer extends RendererAdapter {
     private static final int WAITING_MILLIS = 100;
 
     public MultiThreadedRenderer() {
-        super(new SingleThreadedRenderer());
+        super(new StreamRenderer());
     }
 
     @Override

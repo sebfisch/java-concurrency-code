@@ -12,7 +12,7 @@ public class ForkJoinRenderer extends RendererAdapter {
     private static final int THRESHOLD = 10000;
 
     public ForkJoinRenderer() {
-        super(new SingleThreadedRenderer());
+        super(new StreamRenderer());
     }
 
     @Override

@@ -17,7 +17,7 @@ import sebfisch.graphics.rendering.TimedRenderer;
 
 public class FractalApp {
     public static final int THREADS = //
-        Runtime.getRuntime().availableProcessors() - 2;
+        Runtime.getRuntime().availableProcessors();
 
     private final Frame frame;
     private final ImageCanvas canvas;
@@ -42,16 +42,15 @@ public class FractalApp {
         adjustMaxIter();
 
         final Renderer renderer = new TimedRenderer( //
-            // new SingleThreadedRenderer() // 20s
+            // new StreamRenderer() // 25s
             // new MultiThreadedRenderer() // 11s
-            // new ThreadPoolRenderer() // 11s
+            // new ThreadPoolRenderer() // 10s
             new ForkJoinRenderer() // 8.0s
-            // new ParallelStreamRenderer() // 8.3s
         );
 
         canvas = new ImageCanvas(renderer);
         canvas.setPreferredSize(new Dimension(1350, 900));
-        canvas.setImage(image.map(FractalApp::threadColor));
+        canvas.setImage(image);//.map(FractalApp::threadColor));
         canvas.setParams(params);
         canvas.addMouseListener(new MouseAdapter() {
             @Override
