@@ -50,7 +50,7 @@ public class FractalApp {
 
         canvas = new ImageCanvas(renderer);
         canvas.setPreferredSize(new Dimension(1350, 900));
-        canvas.setImage(image);//.map(FractalApp::threadColor));
+        canvas.setImage(image.map(FractalApp::threadColor));
         canvas.setParams(params);
         canvas.addMouseListener(new MouseAdapter() {
             @Override
