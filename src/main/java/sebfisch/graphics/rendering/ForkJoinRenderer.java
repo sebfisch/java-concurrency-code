@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import sebfisch.graphics.Box;
 
-public class ForkJoinRenderer extends RendererAdapter {
+public class ForkJoinRenderer extends RendererAdapter<StreamRenderer> {
     private static final int THRESHOLD = 10000;
 
     public ForkJoinRenderer() {

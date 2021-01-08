@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import sebfisch.graphics.Box;
 
-public class MultiThreadedRenderer extends RendererAdapter {
+public class MultiThreadedRenderer extends RendererAdapter<StreamRenderer> {
     private static final int WAITING_MILLIS = 100;
 
     public MultiThreadedRenderer() {

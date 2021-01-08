@@ -10,9 +10,9 @@ import java.awt.event.WindowEvent;
 import sebfisch.graphics.ImageParams;
 import sebfisch.graphics.Pixel;
 import sebfisch.graphics.Point;
+import sebfisch.graphics.rendering.ForkJoinRenderer;
 import sebfisch.graphics.rendering.ImageCanvas;
 import sebfisch.graphics.rendering.Renderer;
-import sebfisch.graphics.rendering.ThreadPoolRenderer;
 import sebfisch.graphics.rendering.TimedRenderer;
 
 public class FractalApp {
@@ -41,11 +41,11 @@ public class FractalApp {
         // image = new JuliaSet(new Point(-1.476, 0.0));
         adjustMaxIter();
 
-        final Renderer renderer = new TimedRenderer( //
+        final Renderer renderer = new TimedRenderer<>( //
             // new StreamRenderer() // 25s
             // new MultiThreadedRenderer() // 11s
-            new ThreadPoolRenderer() // 10s
-            // new ForkJoinRenderer() // 8.0s
+            // new ThreadPoolRenderer() // 10s
+            new ForkJoinRenderer() // 8.0s
         );
 
         canvas = new ImageCanvas(renderer);

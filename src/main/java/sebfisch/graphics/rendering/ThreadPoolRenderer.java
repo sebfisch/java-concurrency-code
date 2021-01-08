@@ -8,7 +8,7 @@ import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 import sebfisch.graphics.Box;
 
-public class ThreadPoolRenderer extends RendererAdapter {
+public class ThreadPoolRenderer extends RendererAdapter<StreamRenderer> {
     public ThreadPoolRenderer() {
         super(new StreamRenderer());
     }

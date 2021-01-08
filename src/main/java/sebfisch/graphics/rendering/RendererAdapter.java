@@ -4,10 +4,10 @@ import java.awt.image.BufferedImage;
 import sebfisch.graphics.Image;
 import sebfisch.graphics.ImageParams;
 
-public abstract class RendererAdapter implements Renderer {
-    protected final Renderer renderer;
+public abstract class RendererAdapter<R extends Renderer> implements Renderer {
+    protected final R renderer;
 
-    public RendererAdapter(final Renderer renderer) {
+    public RendererAdapter(final R renderer) {
         this.renderer = renderer;
     }
 

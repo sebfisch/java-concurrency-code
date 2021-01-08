@@ -4,8 +4,8 @@ import java.time.Duration;
 import java.time.Instant;
 import sebfisch.graphics.Box;
 
-public class TimedRenderer extends RendererAdapter {
-    public TimedRenderer(final Renderer renderer) {
+public class TimedRenderer<R extends Renderer> extends RendererAdapter<R> {
+    public TimedRenderer(final R renderer) {
         super(renderer);
     }
 
