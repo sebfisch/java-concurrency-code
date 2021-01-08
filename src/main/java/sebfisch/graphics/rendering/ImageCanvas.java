@@ -28,7 +28,7 @@ public class ImageCanvas extends Canvas {
     private boolean needsUpdate;
 
     public ImageCanvas(final Renderer renderer) {
-        service = Executors.newScheduledThreadPool(2);
+        service = Executors.newScheduledThreadPool(1);
         ((ScheduledThreadPoolExecutor) service) //
             .setRemoveOnCancelPolicy(true);
         this.renderer = renderer;
