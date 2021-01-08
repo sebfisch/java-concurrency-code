@@ -1,6 +1,6 @@
 package sebfisch.graphics;
 
-public class Pixel {
+public final class Pixel {
     public final int x;
     public final int y;
 

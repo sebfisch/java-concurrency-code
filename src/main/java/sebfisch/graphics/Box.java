@@ -2,7 +2,7 @@ package sebfisch.graphics;
 
 import java.util.stream.Stream;
 
-public class Box {
+public final class Box {
     public final Pixel min;
     public final Pixel size;
 

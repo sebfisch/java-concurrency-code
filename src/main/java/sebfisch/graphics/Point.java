@@ -1,6 +1,6 @@
 package sebfisch.graphics;
 
-public class Point {
+public final class Point {
     public final double x;
     public final double y;
 

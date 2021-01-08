@@ -1,6 +1,6 @@
 package sebfisch.graphics;
 
-public class ImageParams {
+public final class ImageParams {
     public final Point center;
     public final double pixelDist;
 
