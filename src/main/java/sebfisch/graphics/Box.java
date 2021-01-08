@@ -27,7 +27,7 @@ public class Box {
     }
 
     public Stream<Box> split() {
-        return split(maxEvenSplit(size.x), maxEvenSplit(size.y));
+        return split(maxEvenSplit(size.y), maxEvenSplit(size.x));
     }
 
     private int maxEvenSplit(final int size) {

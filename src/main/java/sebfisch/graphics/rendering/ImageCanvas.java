@@ -59,7 +59,7 @@ public class ImageCanvas extends Canvas {
 
     private void maybeRender() {
         updateBuffer();
-        updateRaster();
+        updatePixels();
         restartRendering();
         needsUpdate = false;
     }
@@ -76,7 +76,7 @@ public class ImageCanvas extends Canvas {
         }
     }
 
-    private void updateRaster() {
+    private void updatePixels() {
         if (needsUpdate) {
             final BufferedImage buffer = renderer.getBuffer();
             pixels = new Box( //
@@ -87,7 +87,7 @@ public class ImageCanvas extends Canvas {
     private void restartRendering() {
         if (needsUpdate && pixels != null) {
             stopRendering();
-            rendering = service.schedule(this::render, 0, TimeUnit.SECONDS);
+            rendering = service.submit(this::render);
         }
     }
 
