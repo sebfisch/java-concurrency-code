@@ -1,13 +1,13 @@
 package sebfisch.graphics.rendering;
 
-import java.awt.image.BufferedImage;
 import sebfisch.graphics.Image;
 import sebfisch.graphics.ImageParams;
+import sebfisch.graphics.PixelRaster;
 
 public abstract class AbstractRenderer implements Renderer {
     protected Image image;
     protected ImageParams params;
-    protected BufferedImage buffer;
+    protected PixelRaster raster;
 
     public Image getImage() {
         return image;
@@ -25,11 +25,11 @@ public abstract class AbstractRenderer implements Renderer {
         this.params = params;
     }
 
-    public BufferedImage getBuffer() {
-        return buffer;
+    public PixelRaster getRaster() {
+        return raster;
     }
 
-    public void setBuffer(final BufferedImage buffer) {
-        this.buffer = buffer;
+    public void setRaster(final PixelRaster raster) {
+        this.raster = raster;
     }
 }

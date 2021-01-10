@@ -1,8 +1,8 @@
 package sebfisch.graphics.rendering;
 
-import java.awt.image.BufferedImage;
 import sebfisch.graphics.Image;
 import sebfisch.graphics.ImageParams;
+import sebfisch.graphics.PixelRaster;
 
 public abstract class RendererAdapter<R extends Renderer> implements Renderer {
     protected final R renderer;
@@ -32,12 +32,12 @@ public abstract class RendererAdapter<R extends Renderer> implements Renderer {
     }
 
     @Override
-    public BufferedImage getBuffer() {
-        return renderer.getBuffer();
+    public PixelRaster getRaster() {
+        return renderer.getRaster();
     }
 
     @Override
-    public void setBuffer(final BufferedImage buffer) {
-        renderer.setBuffer(buffer);
+    public void setRaster(final PixelRaster raster) {
+        renderer.setRaster(raster);
     }
 }

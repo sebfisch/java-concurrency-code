@@ -1,9 +1,9 @@
 package sebfisch.graphics.rendering;
 
-import java.awt.image.BufferedImage;
+import sebfisch.graphics.Box;
 import sebfisch.graphics.Image;
 import sebfisch.graphics.ImageParams;
-import sebfisch.graphics.Box;
+import sebfisch.graphics.PixelRaster;
 
 public interface Renderer {
     Image getImage();
@@ -12,8 +12,8 @@ public interface Renderer {
     ImageParams getParams();
     void setParams(ImageParams params);
 
-    BufferedImage getBuffer();
-    void setBuffer(BufferedImage buffer);
+    PixelRaster getRaster();
+    void setRaster(PixelRaster raster);
 
     boolean render(Box pixels);
 }

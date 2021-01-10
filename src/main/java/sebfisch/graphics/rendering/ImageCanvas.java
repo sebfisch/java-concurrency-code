@@ -1,7 +1,7 @@
 package sebfisch.graphics.rendering;
 
 import java.awt.Canvas;
-import java.awt.Dimension;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -10,12 +10,13 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import sebfisch.graphics.Box;
 import sebfisch.graphics.Image;
 import sebfisch.graphics.ImageParams;
 import sebfisch.graphics.Pixel;
-import sebfisch.graphics.Box;
+import sebfisch.graphics.PixelRaster;
 
-public class ImageCanvas extends Canvas {
+public class ImageCanvas extends Canvas implements PixelRaster {
     private static final long serialVersionUID = 1L;
     private static final int PERIOD_MILLIS = 500;
 
@@ -24,6 +25,7 @@ public class ImageCanvas extends Canvas {
 
     private Future<?> repainting;
     private Future<?> rendering;
+    private BufferedImage buffer;
     private Box pixels;
     private boolean needsUpdate;
 
@@ -32,6 +34,7 @@ public class ImageCanvas extends Canvas {
         ((ScheduledThreadPoolExecutor) service) //
             .setRemoveOnCancelPolicy(true);
         this.renderer = renderer;
+        renderer.setRaster(this);
     }
 
     public void setImage(final Image image) {
@@ -45,6 +48,11 @@ public class ImageCanvas extends Canvas {
     }
 
     @Override
+    public void setPixelColor(final Pixel pixel, final Color color) {
+        buffer.setRGB(pixel.x, pixel.y, color.getRGB());
+    }
+
+    @Override
     public void update(final Graphics g) {
         paint(g);
     }
@@ -53,7 +61,7 @@ public class ImageCanvas extends Canvas {
     public void paint(final Graphics g) {
         maybeRender();
         final Rectangle clip = g.getClipBounds();
-        g.drawImage(renderer.getBuffer(), //
+        g.drawImage(buffer, //
             clip.x, clip.y, clip.width, clip.height, null);
     }
 
@@ -65,22 +73,19 @@ public class ImageCanvas extends Canvas {
     }
 
     private void updateBuffer() {
-        final Dimension my = getSize();
-        final BufferedImage buffer = renderer.getBuffer();
         if (buffer == null || //
-                buffer.getWidth() != my.width || //
-                buffer.getHeight() != my.height) {
-            renderer.setBuffer(new BufferedImage( //
-                my.width, my.height, BufferedImage.TYPE_INT_RGB));
+                buffer.getWidth() != getWidth() || //
+                buffer.getHeight() != getHeight()) {
+            buffer = new BufferedImage( //
+                getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
             needsUpdate = true;
         }
     }
 
     private void updatePixels() {
         if (needsUpdate) {
-            final BufferedImage buffer = renderer.getBuffer();
             pixels = new Box( //
-                new Pixel(0, 0), new Pixel(buffer.getWidth(), buffer.getHeight()));
+                new Pixel(0, 0), new Pixel(getWidth(), getHeight()));
         }
     }
 
