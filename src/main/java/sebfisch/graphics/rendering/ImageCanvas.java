@@ -48,7 +48,7 @@ public class ImageCanvas extends Canvas implements PixelRaster {
     }
 
     @Override
-    public void setPixelColor(final Pixel pixel, final Color color) {
+    public synchronized void setPixelColor(final Pixel pixel, final Color color) {
         buffer.setRGB(pixel.x, pixel.y, color.getRGB());
     }
 
@@ -61,8 +61,10 @@ public class ImageCanvas extends Canvas implements PixelRaster {
     public void paint(final Graphics g) {
         maybeRender();
         final Rectangle clip = g.getClipBounds();
-        g.drawImage(buffer, //
-            clip.x, clip.y, clip.width, clip.height, null);
+        synchronized (this) {
+            g.drawImage(buffer, //
+                clip.x, clip.y, clip.width, clip.height, null);
+        }
     }
 
     private void maybeRender() {
