@@ -18,7 +18,6 @@ import sebfisch.graphics.PixelRaster;
 
 public class ImageCanvas extends Canvas implements PixelRaster {
     private static final long serialVersionUID = 1L;
-    private static final int PERIOD_MILLIS = 500;
 
     private final ScheduledExecutorService service;
     private final Renderer renderer;
@@ -115,7 +114,7 @@ public class ImageCanvas extends Canvas implements PixelRaster {
     private void resumeRepainting() {
         if (repainting == null || repainting.isDone()) {
             repainting = service.scheduleAtFixedRate( //
-                this::repaint, 0, PERIOD_MILLIS, TimeUnit.MILLISECONDS);
+                this::repaint, 0, 1, TimeUnit.SECONDS);
         }
     }
 
