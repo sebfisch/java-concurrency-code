@@ -1,12 +1,11 @@
 package sebfisch.graphics.rendering;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import sebfisch.graphics.Box;
 
 public class MultiThreadedRenderer extends RendererAdapter<StreamRenderer> {
-    private static final int WAITING_MILLIS = 100;
-
     public MultiThreadedRenderer() {
         super(new StreamRenderer());
     }
@@ -27,12 +26,12 @@ public class MultiThreadedRenderer extends RendererAdapter<StreamRenderer> {
 
     private boolean join(final List<Thread> threads) {
         while (threads.stream().anyMatch(Thread::isAlive)) {
-            if (Thread.interrupted()) {
+            if (Thread.currentThread().isInterrupted()) {
                 interruptAll(threads);
                 return false;
             }
             try {
-                Thread.sleep(WAITING_MILLIS);
+                TimeUnit.SECONDS.sleep(1);
             } catch (InterruptedException e) {
                 interruptAll(threads);
                 return false;
