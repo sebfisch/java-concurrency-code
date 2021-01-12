@@ -30,7 +30,7 @@ public class ThreadPoolRenderer extends RendererAdapter<StreamRenderer> {
             try {
                 future.get();
                 return true;
-            } catch (InterruptedException|ExecutionException e) {
+            } catch (InterruptedException | ExecutionException e) {
                 cancelAll(futures);
                 return false;
             }
