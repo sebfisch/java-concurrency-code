@@ -19,8 +19,9 @@ public class ThreadPoolRenderer extends RendererAdapter<StreamRenderer> {
     }
 
     private List<Future<?>> fork(final ExecutorService pool, final Box pixels) {
+        Thread origin = Thread.currentThread();
         return pixels.split() //
-            .map(part -> (Runnable) () -> renderer.render(part)) //
+            .map(part -> (Runnable) () -> renderer.render(part, origin)) //
             .map(pool::submit) //
             .collect(Collectors.toList());
     }
@@ -31,13 +32,8 @@ public class ThreadPoolRenderer extends RendererAdapter<StreamRenderer> {
                 future.get();
                 return true;
             } catch (InterruptedException | ExecutionException e) {
-                cancelAll(futures);
                 return false;
             }
         }).allMatch(ok -> ok);
-    }
-
-    private void cancelAll(final List<Future<?>> futures) {
-        futures.forEach(future -> future.cancel(true));
     }
 }
