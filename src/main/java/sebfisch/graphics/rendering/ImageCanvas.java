@@ -36,6 +36,11 @@ public class ImageCanvas extends Canvas implements PixelRaster {
         renderer.setRaster(this);
     }
 
+    public void rerender() {
+        this.needsUpdate = true;
+        repaint();
+    }
+
     public void setImage(final Image image) {
         renderer.setImage(image);
         this.needsUpdate = true;

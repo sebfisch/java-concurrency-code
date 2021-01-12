@@ -6,18 +6,16 @@ import sebfisch.graphics.Point;
 
 public class GridImage implements Image {
 
-    private final Grid grid;
+    private final EndlessGrid grid;
 
-    public GridImage(final Grid grid) {
+    public GridImage(final EndlessGrid grid) {
         this.grid = grid;
     }
 
     @Override
     public Color colorAt(final Point point) {
-        final int row = (int) Math.round(point.y);
-        final int col = (int) Math.round(point.x);
-
-        final float hue = 1f * grid.valueAt(row, col) / (grid.maxValue() + 1);
-        return Color.getHSBColor(hue, 1, 1);
+        final int row = (int) Math.floor(-point.y);
+        final int col = (int) Math.floor(point.x);
+        return grid.getCell(row, col).getColor();
     }
 }

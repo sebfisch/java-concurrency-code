@@ -31,10 +31,10 @@ public class FractalApp {
 
     public FractalApp() {
         params = new ImageParams(new Point(0, 0), 0.004);
-        // params = new ImageParams( //
-        //     new Point(-1.4793453674316406,0.0021713104248046885), //
-        //     7.62939453125E-9 //
-        // );
+        params = new ImageParams( //
+            new Point(-1.4793453674316406,0.0021713104248046885), //
+            7.62939453125E-9 //
+        );
 
         image = new MandelbrotSet();
         // image = new JuliaSet(new Point(-1, 0.1));
