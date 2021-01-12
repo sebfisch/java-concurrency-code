@@ -55,6 +55,7 @@ public class MultiThreadColoring extends AbstractGridColoring {
                 locked.forEach(cell -> {
                     cell.unlock(cell.index() == grid.index(row, col));
                 });
+                runChangeActions();
                 grid.neighborIndices(row, col).forEach(index -> {
                     pickNewColor(grid.row(index), grid.col(index));
                 });
@@ -62,8 +63,8 @@ public class MultiThreadColoring extends AbstractGridColoring {
                 locked.forEach(cell -> {
                     cell.unlock(cell.index() == grid.index(row, col));
                 });    
+                runChangeActions();
             }
-            runChangeActions();
         });
     }
 }
