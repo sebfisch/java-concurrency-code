@@ -13,7 +13,7 @@ import sebfisch.coloring.EndlessGrid;
 import sebfisch.coloring.ColoredLock;
 
 public class MultiThreadColoring extends AbstractGridColoring {
-    private static ExecutorService POOL = Executors.newCachedThreadPool();
+    private static final ExecutorService POOL = Executors.newCachedThreadPool();
 
     public MultiThreadColoring(final EndlessGrid grid) {
         super(grid);
@@ -28,7 +28,7 @@ public class MultiThreadColoring extends AbstractGridColoring {
 
     @Override
     public void pickNewColor(int row, int col) {
-        POOL.submit(() -> {
+        POOL.execute(() -> {
             final List<ColoredLock> neighbors = grid.neighborIndices(row, col) //
                 .map(grid::getCell) //
                 .collect(Collectors.toList());
@@ -37,8 +37,8 @@ public class MultiThreadColoring extends AbstractGridColoring {
             Collections.sort(locked);
             locked.forEach(cell -> {
                 cell.lock(cell.index() == grid.index(row, col));
+                runChangeActions();
             });
-            runChangeActions();
             try {
                 final long ms = 100 + ThreadLocalRandom.current().nextLong(100);
                 TimeUnit.MILLISECONDS.sleep(ms);
