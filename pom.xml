@@ -6,7 +6,7 @@
   <version>0.1</version>
 
   <name>Parallelism and Concurrency in Java</name>
-  <url>https://sebfisch.github.io/java-parcon/</url>
+  <url>https://sebfisch.github.io/java-concurrency/</url>
 
   <properties>
     <maven.compiler.release>11</maven.compiler.release>

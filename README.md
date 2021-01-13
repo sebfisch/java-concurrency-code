@@ -1,11 +1,10 @@
 # Parallelism and Concurrency in Java
 
 This repository contains source code underlying
-[Paralellism and Concurrency in Java](https://sebfisch.github.io/java-parcon/).
+[Paralellism and Concurrency in Java](https://sebfisch.github.io/java-concurrency/).
 
 You can use you own Java Development Environment to work with the code.
-The minimum required Java Version is 11.
-The code has also been tested with Java 14.
+The code has been developed with Java Version 11.
 
 Alternatively, you can install 
 [Docker](https://docs.docker.com/get-docker/)
@@ -16,7 +15,7 @@ with the
 to use a predefined development environment without creating (or adjusting) your own.
 To use the predefined environment in VS Code 
 download and unpack
-[this repository](https://github.com/sebfisch/java-parcon-code/archive/main.zip)
+[this repository](https://github.com/sebfisch/java-concurrency-code/archive/main.zip)
 (or use git to clone it),
 open the repository folder in VS Code,
 click on the Remote Containers icon in the bottom-left corner, 
@@ -35,5 +34,5 @@ based on `tmux` and `vim` with the following terminal command.
 
     docker-compose run --rm dev
 
-[© 2020](https://creativecommons.org/licenses/by-sa/2.0/)
+[© 2021](https://creativecommons.org/licenses/by-sa/2.0/)
 by Sebastian Fischer
