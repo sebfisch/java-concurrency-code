@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
-public class ThreadTests {
+public class ClassicTests {
 
     @Test
     void testHowToStartAndJoinThreads() {
