@@ -24,7 +24,7 @@ public class Throttled implements Runnable {
     }
 
     @Override
-    public void run() {
+    public synchronized void run() {
         if (!delayed) {
             delayed = true;
             service.schedule(() -> {
