@@ -2,7 +2,7 @@ package sebfisch.concurrent;
 
 public class InterruptFlag implements Interruptible {
 
-    private boolean wasInterrupted = false;
+    private volatile boolean wasInterrupted = false;
 
     @Override
     public boolean wasInterrupted() {
