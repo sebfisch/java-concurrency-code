@@ -7,12 +7,13 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
 import sebfisch.graphics.ImageParams;
 import sebfisch.graphics.Pixel;
 import sebfisch.graphics.Point;
 import sebfisch.graphics.rendering.ImageCanvas;
 import sebfisch.graphics.rendering.Renderer;
-import sebfisch.graphics.rendering.StreamRenderer;
+import sebfisch.graphics.rendering.ThreadPoolRenderer;
 import sebfisch.graphics.rendering.TimedRenderer;
 
 public class FractalApp {
@@ -31,10 +32,10 @@ public class FractalApp {
 
     public FractalApp() {
         params = new ImageParams(new Point(0, 0), 0.007);
-        // params = new ImageParams( //
-        //     new Point(-1.4793453674316406,0.0021713104248046885), //
-        //     7.62939453125E-9 //
-        // );
+        params = new ImageParams( //
+            new Point(-1.4793453674316406,0.0021713104248046885), //
+            7.62939453125E-9 //
+        );
 
         image = new MandelbrotSet();
         // image = new JuliaSet(new Point(-1, 0.1));
@@ -42,9 +43,9 @@ public class FractalApp {
         adjustMaxIter();
 
         final Renderer renderer = new TimedRenderer<>( //
-            new StreamRenderer() // 25s
+            // new StreamRenderer() // 25s
             // new MultiThreadedRenderer() // 11s
-            // new ThreadPoolRenderer() // 10s
+            new ThreadPoolRenderer() // 10s
             // new ForkJoinRenderer() // 8.0s
         );
 
