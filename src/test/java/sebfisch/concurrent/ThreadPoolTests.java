@@ -76,7 +76,7 @@ public class ThreadPoolTests {
         final Future<Integer> fib10 = pool.submit(new Fib(10));
 
         try {
-            assertEquals(fib10.get(), 55);
+            assertEquals(55, fib10.get());
         } catch (InterruptedException | ExecutionException e) {
         }
     }
