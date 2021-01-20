@@ -2,10 +2,11 @@ package sebfisch.fractals;
 
 import java.awt.Color;
 import java.util.stream.Stream;
+
 import sebfisch.graphics.Image;
 import sebfisch.graphics.Point;
 
-public abstract class FractalImage implements Image {
+public abstract class FractalImage implements Image<Point, Color> {
     private long maxIter = 100;
 
     public void setMaxIter(final long maxIter) {

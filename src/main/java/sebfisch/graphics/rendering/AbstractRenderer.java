@@ -1,28 +1,21 @@
 package sebfisch.graphics.rendering;
 
+import java.awt.Color;
+
 import sebfisch.graphics.Image;
-import sebfisch.graphics.ImageParams;
+import sebfisch.graphics.Pixel;
 import sebfisch.graphics.PixelRaster;
 
 public abstract class AbstractRenderer implements Renderer {
-    protected Image image;
-    protected ImageParams params;
+    protected Image<Pixel, Color> image;
     protected PixelRaster raster;
 
-    public Image getImage() {
+    public Image<Pixel, Color> getImage() {
         return image;
     }
 
-    public void setImage(final Image image) {
+    public void setImage(final Image<Pixel, Color> image) {
         this.image = image;
-    }
-
-    public ImageParams getParams() {
-        return params;
-    }
-
-    public void setParams(final ImageParams params) {
-        this.params = params;
     }
 
     public PixelRaster getRaster() {

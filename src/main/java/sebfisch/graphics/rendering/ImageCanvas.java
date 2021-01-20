@@ -10,9 +10,9 @@ import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 import sebfisch.graphics.Box;
 import sebfisch.graphics.Image;
-import sebfisch.graphics.ImageParams;
 import sebfisch.graphics.Pixel;
 import sebfisch.graphics.PixelRaster;
 
@@ -41,13 +41,8 @@ public class ImageCanvas extends Canvas implements PixelRaster {
         repaint();
     }
 
-    public void setImage(final Image image) {
+    public void setImage(final Image<Pixel, Color> image) {
         renderer.setImage(image);
-        this.needsUpdate = true;
-    }
-
-    public void setParams(final ImageParams params) {
-        renderer.setParams(params);
         this.needsUpdate = true;
     }
 

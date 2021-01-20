@@ -1,16 +1,15 @@
 package sebfisch.graphics.rendering;
 
+import java.awt.Color;
+
 import sebfisch.graphics.Box;
 import sebfisch.graphics.Image;
-import sebfisch.graphics.ImageParams;
+import sebfisch.graphics.Pixel;
 import sebfisch.graphics.PixelRaster;
 
 public interface Renderer {
-    Image getImage();
-    void setImage(Image image);
-
-    ImageParams getParams();
-    void setParams(ImageParams params);
+    Image<Pixel, Color> getImage();
+    void setImage(Image<Pixel, Color> image);
 
     PixelRaster getRaster();
     void setRaster(PixelRaster raster);

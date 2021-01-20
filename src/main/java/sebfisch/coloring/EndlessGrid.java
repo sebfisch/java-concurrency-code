@@ -1,6 +1,7 @@
 package sebfisch.coloring;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -66,18 +67,38 @@ public class EndlessGrid {
         );
     }
 
+    public List<ColoredLock> neighbors(final int row, final int col) {
+        return neighborIndices(row, col) //
+            .map(this::getCell) //
+            .collect(Collectors.toList());
+    }
+
+    public Set<Float> neighborHues(final int row, final int col) {
+        return neighborIndices(row, col) //
+            .map(this::getCell) //
+            .map(ColoredLock::getHue) //
+            .collect(Collectors.toSet());
+    }
+
     public Stream<Float> palette() {
+        final int count = size * size;
+        final int step = IntStream.iterate(size, i -> i + 1) //
+            .filter(i -> gcd(i, count) == 1) //
+            .findFirst().orElseThrow();
         return IntStream //
-            .rangeClosed(0, 32 - Integer.numberOfLeadingZeros(size*size)) //
-            .boxed() //
-            .flatMap(i -> {
-                if (i == 0) {
-                    return Stream.of(0f);
-                } else {
-                    final int power = (int) Math.pow(2, i-1);
-                    return IntStream.range(0, power) //
-                        .mapToObj(j -> (j + 0.5f) / power);
-                }
-            });
+            .iterate(0, i -> i + step) //
+            .map(i -> i % count) //
+            .mapToObj(i -> (float) i / count) //
+            .limit(count);
+    }
+
+    private static int gcd(int a, int b) {
+        int i;
+        while (b != 0) {
+            i = b;
+            b = a % b;
+            a = i;
+        }
+        return a;
     }
 }

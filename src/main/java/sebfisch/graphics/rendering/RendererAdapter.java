@@ -1,7 +1,9 @@
 package sebfisch.graphics.rendering;
 
+import java.awt.Color;
+
 import sebfisch.graphics.Image;
-import sebfisch.graphics.ImageParams;
+import sebfisch.graphics.Pixel;
 import sebfisch.graphics.PixelRaster;
 
 public abstract class RendererAdapter<R extends Renderer> implements Renderer {
@@ -12,23 +14,13 @@ public abstract class RendererAdapter<R extends Renderer> implements Renderer {
     }
 
     @Override
-    public Image getImage() {
+    public Image<Pixel, Color> getImage() {
         return renderer.getImage();
     }
 
     @Override
-    public void setImage(final Image image) {
+    public void setImage(final Image<Pixel, Color> image) {
         renderer.setImage(image);
-    }
-
-    @Override
-    public ImageParams getParams() {
-        return renderer.getParams();
-    }
-
-    @Override
-    public void setParams(final ImageParams params) {
-        renderer.setParams(params);
     }
 
     @Override

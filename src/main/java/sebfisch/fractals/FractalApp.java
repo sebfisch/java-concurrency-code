@@ -32,10 +32,10 @@ public class FractalApp {
 
     public FractalApp() {
         params = new ImageParams(new Point(0, 0), 0.007);
-        params = new ImageParams( //
-            new Point(-1.4793453674316406,0.0021713104248046885), //
-            7.62939453125E-9 //
-        );
+        // params = new ImageParams( //
+        //     new Point(-1.4793453674316406,0.0021713104248046885), //
+        //     7.62939453125E-9 //
+        // );
 
         image = new MandelbrotSet();
         // image = new JuliaSet(new Point(-1, 0.1));
@@ -51,8 +51,6 @@ public class FractalApp {
 
         canvas = new ImageCanvas(renderer);
         canvas.setPreferredSize(new Dimension(675, 450));
-        canvas.setImage(image);//.map(FractalApp::threadColor));
-        canvas.setParams(params);
         canvas.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent event) {
@@ -68,19 +66,28 @@ public class FractalApp {
         frame.add(canvas);
         frame.pack();
         frame.setVisible(true);
+
+        updateImage();
+    }
+
+    private void updateImage() {
+        canvas.setImage( //
+            params.pixelImage(image, canvas.getSize()) //
+                );//.mapC(FractalApp::threadColor));
     }
 
     private void adjustMaxIter() {
-        image.setMaxIter((long) Math.sqrt(1 / params.pixelDist) + 10);
+        final long maxIter = //
+            (long) Math.min(1e5, Math.sqrt(1 / params.pixelDist) + 10);
+        image.setMaxIter(maxIter);
     }
 
     private void handleClick(final Pixel mouse, final boolean isLeft) {
-        params = params //
-            .centerdOn(mouse, canvas.getWidth(), canvas.getHeight()) //
-            .zoomedBy(isLeft ? 0.5 : 2);
-        // System.out.println(params);
-        canvas.setParams(params);
+        final Point mousePoint = //
+            params.pointAt(mouse, canvas.getSize());
+        params = params.zoomedAround(mousePoint, isLeft ? 0.5 : 2);
         adjustMaxIter();
+        updateImage();
         canvas.repaint();
     }
 
