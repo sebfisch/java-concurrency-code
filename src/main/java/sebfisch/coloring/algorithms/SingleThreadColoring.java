@@ -23,7 +23,7 @@ public class SingleThreadColoring extends AbstractGridColoring {
     public void pickNewColor(int row, int col) {
         final Set<Float> neighborHues = grid.neighborHues(row, col);
         final float newHue = grid.palette() //
-            .filter(hue -> !neighborHues.contains(hue))
+            .filter(hue -> !neighborHues.contains(hue)) //
             .findFirst() //
             .orElseThrow();
         
