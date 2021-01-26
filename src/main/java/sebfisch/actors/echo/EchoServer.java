@@ -21,6 +21,7 @@ import sebfisch.actors.JsonSerializable;
 import sebfisch.actors.echo.EchoServer.Request;
 
 public class EchoServer extends AbstractBehavior<Request> {
+    public static final String HOST = "127.0.0.1";
     public static final int PORT = 25520;
 
     private static final BufferedReader STDIN = 
@@ -28,6 +29,7 @@ public class EchoServer extends AbstractBehavior<Request> {
 
     public static void main(String[] args) {
         Map<String, Object> overrides = new HashMap<>();
+        overrides.put("akka.remote.artery.canonical.hostname", HOST);
         overrides.put("akka.remote.artery.canonical.port", PORT);
         Config config = ConfigFactory
             .parseMap(overrides)

@@ -21,7 +21,7 @@ public class EchoClient extends AbstractBehavior<Request> {
         new BufferedReader(new InputStreamReader(System.in));
     
     private static final String SERVER =
-        "akka://echo-server@127.0.0.1:" + EchoServer.PORT + "/user";
+        "akka://echo-server@"+EchoServer.HOST+":"+EchoServer.PORT+"/user";
 
     public static void main(String[] args) {
         ActorSystem<Request> echoClient = 
