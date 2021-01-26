@@ -1,13 +1,8 @@
 package sebfisch.actors.echo;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
+import java.time.Duration;
 
-import akka.actor.ActorSelection;
 import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -17,43 +12,33 @@ import akka.actor.typed.javadsl.Receive;
 import sebfisch.actors.echo.EchoClient.Request;
 
 public class EchoClient extends AbstractBehavior<Request> {
-    private static final BufferedReader STDIN = 
-        new BufferedReader(new InputStreamReader(System.in));
-    
-    private static final String SERVER =
-        "akka://echo-server@"+EchoServer.HOST+":"+EchoServer.PORT+"/user";
 
-    public static void main(String[] args) {
-        ActorSystem<Request> echoClient = 
-            ActorSystem.create(EchoClient.create(), "echo-client");
-        
-        System.out.println("Type 'quit' to exit, something else to send");
-        try (Stream<String> lines = STDIN.lines()) {
-            lines
-                .takeWhile(Predicate.not("quit"::equals))
-                .forEach(line -> echoClient.tell(new Send(line)));
-        } finally {
-            echoClient.terminate();
-        }
-    }
+    public interface Request {}
 
-    interface Request {}
-
-    private static class Send implements Request {
-        final String text;
-        Send(String text) {
+    public static class Send implements Request {
+        public final String text;
+        public final ActorRef<EchoServer.Request> server;
+        public Send(String text, ActorRef<EchoServer.Request> server) {
             this.text = text;
+            this.server = server;
         }
     }
 
-    private static class Log implements Request {
-        final EchoServer.Response response;
-        Log(EchoServer.Response response) {
+    public static class Log implements Request {
+        public final EchoServer.Response response;
+        public Log(EchoServer.Response response) {
             this.response = response;
         }
     }
 
-    private final ActorSelection server;
+    public static class SendRemote implements Request {
+        public final String text;
+        public final String path;
+        public SendRemote(String text, String path) {
+            this.text = text;
+            this.path = path;
+        }
+    }
 
     public static Behavior<Request> create() {
         return Behaviors.setup(EchoClient::new);
@@ -61,7 +46,6 @@ public class EchoClient extends AbstractBehavior<Request> {
 
     private EchoClient(ActorContext<Request> ctx) {
         super(ctx);
-        this.server = ctx.getSystem().classicSystem().actorSelection(SERVER);
     }
 
     @Override
@@ -69,20 +53,42 @@ public class EchoClient extends AbstractBehavior<Request> {
         return newReceiveBuilder()
             .onMessage(Send.class, this::respond)
             .onMessage(Log.class, this::respond)
+            .onMessage(SendRemote.class, this::respond)
             .build();
     }
 
-    private Behavior<Request> respond(Send msg) {
+    private EchoClient respond(Send msg) {
         final ActorRef<EchoServer.Response> logAdapter =
             getContext().messageAdapter(EchoServer.Response.class, Log::new);
-        server.tell(
-            new EchoServer.Request(logAdapter, msg.text),
-            Adapter.toClassic(getContext().getSelf()));
+        msg.server.tell(new EchoServer.Request(msg.text, logAdapter));
         return this;
     }
 
-    private Behavior<Request> respond(Log msg) {
+    private EchoClient respond(Log msg) {
         System.out.printf("received: %s%n", msg.response.text);
         return this;
+    }
+
+    private EchoClient respond(SendRemote msg) {
+        final int timeout = 10;
+        final ActorContext<Request> ctx = getContext();
+
+        ctx.getSystem().classicSystem().actorSelection(msg.path) //
+            .resolveOne(Duration.ofSeconds(timeout)) //
+            .thenApply(this::toTyped) //
+            .whenComplete((server, error) -> {
+                if (error != null) {
+                    ctx.getLog().error("{}", error);
+                }
+                if (server != null) {
+                    ctx.getSelf().tell(new Send(msg.text, server));
+                }
+            });
+        
+        return this;
+    }
+
+    private ActorRef<EchoServer.Request> toTyped(akka.actor.ActorRef ref) {
+        return Adapter.toTyped(ref);
     }
 }

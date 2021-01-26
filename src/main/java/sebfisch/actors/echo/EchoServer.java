@@ -1,17 +1,8 @@
 package sebfisch.actors.echo;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.stream.Stream;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 
 import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
@@ -21,37 +12,13 @@ import sebfisch.actors.JsonSerializable;
 import sebfisch.actors.echo.EchoServer.Request;
 
 public class EchoServer extends AbstractBehavior<Request> {
-    public static final String HOST = "127.0.0.1";
-    public static final int PORT = 25520;
-
-    private static final BufferedReader STDIN = 
-        new BufferedReader(new InputStreamReader(System.in));
-
-    public static void main(String[] args) {
-        Map<String, Object> overrides = new HashMap<>();
-        overrides.put("akka.remote.artery.canonical.hostname", HOST);
-        overrides.put("akka.remote.artery.canonical.port", PORT);
-        Config config = ConfigFactory
-            .parseMap(overrides)
-            .withFallback(ConfigFactory.load());
-        
-        ActorSystem<Request> echoServer =
-            ActorSystem.create(EchoServer.create(), "echo-server", config);
-        
-        System.out.println("Type 'quit' to exit");
-        try (Stream<String> lines = STDIN.lines()) {
-            lines.filter("quit"::equals).findFirst();
-        } finally {
-            echoServer.terminate();
-        }
-    }
 
     public static class Request implements JsonSerializable {
-        public final ActorRef<Response> client;
         public final String text;
-        public Request(ActorRef<Response> client, String text) {
-            this.client = client;
+        public final ActorRef<Response> client;
+        public Request(String text, ActorRef<Response> client) {
             this.text = text;
+            this.client = client;
         }
     }
 
@@ -76,7 +43,6 @@ public class EchoServer extends AbstractBehavior<Request> {
     }
 
     private EchoServer respond(Request msg) {
-        System.out.printf("echo: %s%n", msg.text);
         msg.client.tell(new Response(msg.text));
         return this;
     }
