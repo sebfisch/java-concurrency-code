@@ -2,10 +2,10 @@ package sebfisch.actors.echo;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.time.Duration;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import akka.actor.ActorSelection;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.ActorSystem;
 import akka.actor.typed.Behavior;
@@ -14,82 +14,74 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Adapter;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
+import sebfisch.actors.echo.EchoClient.Request;
 
-public class EchoClient extends AbstractBehavior<EchoClient.Cmd> {
+public class EchoClient extends AbstractBehavior<Request> {
     private static final BufferedReader STDIN = 
         new BufferedReader(new InputStreamReader(System.in));
     
     private static final String SERVER =
         "akka://echo-server@127.0.0.1:" + EchoServer.PORT + "/user";
-    
-    private static final int TIMEOUT = 10;
 
     public static void main(String[] args) {
-        ActorSystem<EchoClient.Cmd> echoClient = 
+        ActorSystem<Request> echoClient = 
             ActorSystem.create(EchoClient.create(), "echo-client");
         
         System.out.println("Type 'quit' to exit, something else to send");
         try (Stream<String> lines = STDIN.lines()) {
             lines
                 .takeWhile(Predicate.not("quit"::equals))
-                .forEach(line -> echoClient.tell(new EchoClient.Send(line)));
+                .forEach(line -> echoClient.tell(new Send(line)));
         } finally {
             echoClient.terminate();
         }
     }
 
-    public interface Cmd {}
+    interface Request {}
 
-    public static class Send implements EchoClient.Cmd {
-        public final String text;
-        public Send(String text) {
+    private static class Send implements Request {
+        final String text;
+        Send(String text) {
             this.text = text;
         }
     }
 
-    public static class Log implements EchoClient.Cmd {
-        public final EchoServer.Response response;
-        public Log(EchoServer.Response response) {
+    private static class Log implements Request {
+        final EchoServer.Response response;
+        Log(EchoServer.Response response) {
             this.response = response;
         }
     }
 
-    private final ActorRef<EchoServer.Request> server;
+    private final ActorSelection server;
 
-    public static Behavior<EchoClient.Cmd> create() {
+    public static Behavior<Request> create() {
         return Behaviors.setup(EchoClient::new);
     }
 
-    private EchoClient(ActorContext<EchoClient.Cmd> ctx) {
+    private EchoClient(ActorContext<Request> ctx) {
         super(ctx);
-        this.server = ctx.getSystem().classicSystem()
-            .actorSelection(SERVER)
-            .resolveOne(Duration.ofSeconds(TIMEOUT))
-            .thenApply(EchoClient::typed)
-            .toCompletableFuture()
-            .join();
-    }
-
-    private static ActorRef<EchoServer.Request> typed(akka.actor.ActorRef ref) {
-        return Adapter.toTyped(ref);
+        this.server = ctx.getSystem().classicSystem().actorSelection(SERVER);
     }
 
     @Override
-    public Receive<EchoClient.Cmd> createReceive() {
+    public Receive<Request> createReceive() {
         return newReceiveBuilder()
-            .onMessage(EchoClient.Send.class, this::send)
-            .onMessage(EchoClient.Log.class, this::log)
+            .onMessage(Send.class, this::respond)
+            .onMessage(Log.class, this::respond)
             .build();
     }
 
-    private Behavior<EchoClient.Cmd> send(EchoClient.Send msg) {
+    private Behavior<Request> respond(Send msg) {
         final ActorRef<EchoServer.Response> logAdapter =
             getContext().messageAdapter(EchoServer.Response.class, Log::new);
-        server.tell(new EchoServer.Request(logAdapter, msg.text));
+        server.tell(
+            new EchoServer.Request(logAdapter, msg.text),
+            Adapter.toClassic(getContext().getSelf()));
         return this;
     }
 
-    private Behavior<EchoClient.Cmd> log(EchoClient.Log msg) {
+    private Behavior<Request> respond(Log msg) {
         System.out.printf("received: %s%n", msg.response.text);
         return this;
     }

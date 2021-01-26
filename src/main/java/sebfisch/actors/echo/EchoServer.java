@@ -18,8 +18,9 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import sebfisch.actors.JsonSerializable;
+import sebfisch.actors.echo.EchoServer.Request;
 
-public class EchoServer extends AbstractBehavior<EchoServer.Request> {
+public class EchoServer extends AbstractBehavior<Request> {
     public static final int PORT = 25520;
 
     private static final BufferedReader STDIN = 
@@ -32,7 +33,7 @@ public class EchoServer extends AbstractBehavior<EchoServer.Request> {
             .parseMap(overrides)
             .withFallback(ConfigFactory.load());
         
-        ActorSystem<EchoServer.Request> echoServer =
+        ActorSystem<Request> echoServer =
             ActorSystem.create(EchoServer.create(), "echo-server", config);
         
         System.out.println("Type 'quit' to exit");
@@ -44,9 +45,9 @@ public class EchoServer extends AbstractBehavior<EchoServer.Request> {
     }
 
     public static class Request implements JsonSerializable {
-        public final ActorRef<EchoServer.Response> client;
+        public final ActorRef<Response> client;
         public final String text;
-        public Request(ActorRef<EchoServer.Response> client, String text) {
+        public Request(ActorRef<Response> client, String text) {
             this.client = client;
             this.text = text;
         }
@@ -59,22 +60,22 @@ public class EchoServer extends AbstractBehavior<EchoServer.Request> {
         }
     }
     
-    public static Behavior<EchoServer.Request> create() {
+    public static Behavior<Request> create() {
         return Behaviors.setup(EchoServer::new);
     }
 
-    private EchoServer(ActorContext<EchoServer.Request> ctx) {
+    private EchoServer(ActorContext<Request> ctx) {
         super(ctx);
     }
 
     @Override
-    public Receive<EchoServer.Request> createReceive() {
-        return newReceiveBuilder().onAnyMessage(this::echo).build();
+    public Receive<Request> createReceive() {
+        return newReceiveBuilder().onAnyMessage(this::respond).build();
     }
 
-    private EchoServer echo(EchoServer.Request msg) {
+    private EchoServer respond(Request msg) {
         System.out.printf("echo: %s%n", msg.text);
-        msg.client.tell(new EchoServer.Response(msg.text));
+        msg.client.tell(new Response(msg.text));
         return this;
     }
 }
