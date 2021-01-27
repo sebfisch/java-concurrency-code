@@ -13,8 +13,6 @@ import com.typesafe.config.ConfigFactory;
 import akka.actor.typed.ActorSystem;
 
 public class RemoteChatClient {
-    public static final String HOST = "127.0.0.1";
-
     private static final BufferedReader STDIN = 
         new BufferedReader(new InputStreamReader(System.in));
 
@@ -43,7 +41,6 @@ public class RemoteChatClient {
 
     private static Config remoteConf(int port) {
         Map<String, Object> overrides = new HashMap<>();
-        overrides.put("akka.remote.artery.canonical.hostname", HOST);
         overrides.put("akka.remote.artery.canonical.port", port);
         return ConfigFactory
             .parseMap(overrides)

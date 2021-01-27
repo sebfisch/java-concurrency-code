@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -15,7 +14,6 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import sebfisch.actors.JsonSerializable;
-import sebfisch.actors.chat.ChatClient.Event;
 import sebfisch.actors.chat.ChatServer.Request;
 
 public class ChatServer extends AbstractBehavior<Request> {
@@ -26,7 +24,7 @@ public class ChatServer extends AbstractBehavior<Request> {
         public final String name;
         public final ActorRef<ChatClient.Event> client;
 
-        public Login(String name, ActorRef<Event> client) {
+        public Login(String name, ActorRef<ChatClient.Event> client) {
             this.name = name;
             this.client = client;
         }
@@ -45,7 +43,7 @@ public class ChatServer extends AbstractBehavior<Request> {
     public static class Quit implements Request {
         public final ActorRef<ChatClient.Event> client;
 
-        public Quit(@JsonProperty("client") ActorRef<Event> client) {
+        public Quit(@JsonProperty("client") ActorRef<ChatClient.Event> client) {
             this.client = client;
         }
     }

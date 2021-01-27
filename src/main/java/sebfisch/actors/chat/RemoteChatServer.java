@@ -13,7 +13,7 @@ import akka.actor.typed.ActorSystem;
 
 public class RemoteChatServer {
     public static final String HOST = "127.0.0.1";
-    public static final int PORT = 25520;
+    public static final int PORT = 22222;
     public static final String NAME = "chat-server";
     public static final String PATH =
         "akka://" + NAME + "@" + HOST + ":" + PORT + "/user";

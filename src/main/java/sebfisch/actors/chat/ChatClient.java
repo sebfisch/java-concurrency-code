@@ -12,7 +12,6 @@ import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 import sebfisch.actors.JsonSerializable;
 import sebfisch.actors.chat.ChatClient.Event;
-import sebfisch.actors.chat.ChatServer.Request;
 
 public class ChatClient extends AbstractBehavior<Event> {
     public interface Event extends JsonSerializable {}
@@ -40,7 +39,7 @@ public class ChatClient extends AbstractBehavior<Event> {
         public final Set<String> users;
         public final ActorRef<ChatServer.Request> server;
 
-        public LoggedIn(Set<String> users, ActorRef<Request> server) {
+        public LoggedIn(Set<String> users, ActorRef<ChatServer.Request> server) {
             this.users = users;
             this.server = server;
         }
