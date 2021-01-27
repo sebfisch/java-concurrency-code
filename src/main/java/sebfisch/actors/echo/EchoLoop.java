@@ -21,6 +21,7 @@ public class EchoLoop extends AbstractBehavior<Echo> {
     public static void main(String[] args) {
         ActorSystem<Echo> echoLoop = //
             ActorSystem.create(EchoLoop.create(), "echo-loop");
+            // TODO [Task 3.1] supervise echo loop to restart on failures
         
         System.out.println("Type 'quit' to exit, something else to send");
         try(Stream<String> lines = STDIN.lines()) {
@@ -40,6 +41,7 @@ public class EchoLoop extends AbstractBehavior<Echo> {
         }
     }
 
+    // TODO [Task 5] convert echo loop to functional style
     public static Behavior<Echo> create() {
         return Behaviors.setup(EchoLoop::new);
     }
@@ -51,6 +53,8 @@ public class EchoLoop extends AbstractBehavior<Echo> {
         super(ctx);
         server = ctx.spawn(EchoServer.create(), "echo-server");
         client = ctx.spawn(EchoClient.create(), "echo-client");
+
+        // TODO [Task 3.2] enter death pact with children
     }
 
     @Override

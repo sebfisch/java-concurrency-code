@@ -23,7 +23,6 @@ import sebfisch.actors.ObjectOrientedActorTests.Calculator.GetTotal;
 import sebfisch.actors.ObjectOrientedActorTests.Computer.Compute;
 import sebfisch.actors.ObjectOrientedActorTests.Computer.Forward;
 import sebfisch.actors.ObjectOrientedActorTests.Computer.Request;
-import sebfisch.actors.ObjectOrientedActorTests.Handshake.Self;
 
 public class ObjectOrientedActorTests {
     static final TestKitJunitResource KIT = new TestKitJunitResource();
@@ -91,39 +90,7 @@ public class ObjectOrientedActorTests {
         });
     }
 
-    static class Handshake extends AbstractBehavior<Self> {
-        static class Self {
-            final ActorRef<Self> sender;
-
-            public Self(ActorRef<Self> sender) {
-                this.sender = sender;
-            }
-        }
-
-        static Behavior<Self> create() {
-            return Behaviors.setup(Handshake::new);
-        }
-
-        Handshake(ActorContext<Self> ctx) {
-            super(ctx);
-        }
-
-        @Override
-        public Receive<Self> createReceive() {
-            return newReceiveBuilder().onAnyMessage(msg -> {
-                msg.sender.tell(new Self(getContext().getSelf()));
-                return this;
-            }).build();
-        }
-    }
-
-    @Test
-    public void testThatHandshakeIsAnswered() {
-        ActorRef<Self> handshake = KIT.spawn(Handshake.create());
-        TestProbe<Self> probe = KIT.createTestProbe();
-        handshake.tell(new Self(probe.getRef()));
-        assertNotNull(probe.receiveMessage());
-    }
+    // TODO [Task 1] add handshake test
 
     static class Calculator extends AbstractBehavior<Calculator.Cmd> {
         interface Cmd {
