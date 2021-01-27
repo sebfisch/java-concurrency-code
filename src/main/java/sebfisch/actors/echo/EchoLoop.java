@@ -34,6 +34,7 @@ public class EchoLoop extends AbstractBehavior<Echo> {
 
     public static class Echo {
         public final String text;
+        
         public Echo(String text) {
             this.text = text;
         }

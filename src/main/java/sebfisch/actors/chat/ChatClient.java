@@ -3,8 +3,11 @@ package sebfisch.actors.chat;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
+import akka.actor.typed.PostStop;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Adapter;
@@ -16,13 +19,7 @@ import sebfisch.actors.chat.ChatClient.Event;
 public class ChatClient extends AbstractBehavior<Event> {
     public interface Event extends JsonSerializable {}
 
-    public static class Started implements Event {
-        public final String path;
-
-        public Started(String path) {
-            this.path = path;
-        }
-    }
+    private enum Created implements Event { INSTANCE }
 
     public enum Error implements Event { 
         NOT_LOGGED_IN("You are not logged in."),
@@ -63,53 +60,64 @@ public class ChatClient extends AbstractBehavior<Event> {
         }
     }
 
-    public static class StatusChanged implements Event {
+    public static class UserJoined implements Event {
         public final String user;
-        public final String status;
 
-        public StatusChanged(String user, String status) {
+        public UserJoined(@JsonProperty("user") String user) {
             this.user = user;
-            this.status = status;
         }
     }
 
-    public enum Exiting implements Event { INSTANCE }
+    public static class UserLeft implements Event {
+        public final String user;
 
-    public static Behavior<Event> create(String name) {
-        return Behaviors.setup(ctx -> new ChatClient(ctx, name));
+        public UserLeft(@JsonProperty("user") String user) {
+            this.user = user;
+        }
     }
 
-    private final String name;
+    public static Behavior<Event> create(String name, String path) {
+        return Behaviors.setup(ctx -> new ChatClient(ctx, name, path));
+    }
+
+    private String name;
+    private final String path;
     private ActorRef<ChatServer.Request> server;
 
-    private ChatClient(ActorContext<Event> ctx, String name) {
+    private ChatClient(ActorContext<Event> ctx, String name, String path) {
         super(ctx);
         this.name = name;
+        this.path = path;
+        ctx.getSelf().tell(Created.INSTANCE);
     }
 
     @Override
     public Receive<Event> createReceive() {
         return newReceiveBuilder()
-            .onMessage(Started.class, this::respond)
+            .onMessage(Created.class, this::respond)
             .onMessage(Error.class, this::respond)
             .onMessage(LoggedIn.class, this::respond)
             .onMessage(NewInput.class, this::respond)
             .onMessage(NewMessage.class, this::respond)
-            .onMessage(StatusChanged.class, this::respond)
-            .onMessage(Exiting.class, this::respond)
+            .onMessage(UserJoined.class, this::respond)
+            .onMessage(UserLeft.class, this::respond)
+            .onSignal(PostStop.class, signal -> quit())
             .build();
     }
 
-    private ChatClient respond(Started msg) {
+    private ChatClient respond(Created msg) {
         ActorContext<Event> ctx = getContext();
         ActorRef<Event> self = ctx.getSelf();
-        ctx.getSystem().classicSystem().actorSelection(msg.path) //
+        ctx.getSystem().classicSystem().actorSelection(path) //
             .tell(new ChatServer.Login(name, self), Adapter.toClassic(self));
         return this;
     }
 
     private ChatClient respond(Error error) {
         System.out.println(error.message);
+        if (!Error.NAME_ALREADY_TAKEN.equals(error)) {
+            throw new IllegalStateException(error.message);
+        }
         return this;
     }
 
@@ -125,11 +133,7 @@ public class ChatClient extends AbstractBehavior<Event> {
     }
 
     private ChatClient respond(NewInput msg) {
-        if (server == null) {
-            getContext().getSelf().tell(Error.NOT_LOGGED_IN);
-        } else {
-            server.tell(new ChatServer.Send(msg.text, getContext().getSelf()));
-        }
+        server.tell(new ChatServer.Send(msg.text, getContext().getSelf()));
         return this;
     }
 
@@ -138,15 +142,18 @@ public class ChatClient extends AbstractBehavior<Event> {
         return this;
     }
 
-    private ChatClient respond(StatusChanged msg) {
-        System.out.printf("%s %s the chat.%n", msg.user, msg.status);
+    private ChatClient respond(UserJoined msg) {
+        System.out.printf("%s joined the chat.%n", msg.user);
         return this;
     }
 
-    private ChatClient respond(Exiting msg) {
-        if (server == null) {
-            getContext().getSelf().tell(Error.NOT_LOGGED_IN);
-        } else {
+    private ChatClient respond(UserLeft msg) {
+        System.out.printf("%s left the chat.%n", msg.user);
+        return this;
+    }
+
+    private ChatClient quit() {
+        if (server != null) {
             server.tell(new ChatServer.Quit(getContext().getSelf()));
         }
         return this;

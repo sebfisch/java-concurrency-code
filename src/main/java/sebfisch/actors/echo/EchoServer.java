@@ -16,6 +16,7 @@ public class EchoServer extends AbstractBehavior<Request> {
     public static class Request implements JsonSerializable {
         public final String text;
         public final ActorRef<Response> client;
+
         public Request(String text, ActorRef<Response> client) {
             this.text = text;
             this.client = client;
@@ -24,6 +25,7 @@ public class EchoServer extends AbstractBehavior<Request> {
 
     public static class Response implements JsonSerializable {
         public final String text;
+        
         public Response(@JsonProperty("text") String text) {
             this.text = text;
         }

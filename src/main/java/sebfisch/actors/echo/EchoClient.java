@@ -18,6 +18,7 @@ public class EchoClient extends AbstractBehavior<Request> {
     public static class Send implements Request {
         public final String text;
         public final ActorRef<EchoServer.Request> server;
+
         public Send(String text, ActorRef<EchoServer.Request> server) {
             this.text = text;
             this.server = server;
@@ -26,6 +27,7 @@ public class EchoClient extends AbstractBehavior<Request> {
 
     public static class Log implements Request {
         public final EchoServer.Response response;
+
         public Log(EchoServer.Response response) {
             this.response = response;
         }
@@ -34,6 +36,7 @@ public class EchoClient extends AbstractBehavior<Request> {
     public static class SendRemote implements Request {
         public final String text;
         public final String path;
+        
         public SendRemote(String text, String path) {
             this.text = text;
             this.path = path;

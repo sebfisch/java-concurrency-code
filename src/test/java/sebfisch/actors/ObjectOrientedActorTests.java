@@ -39,7 +39,9 @@ public class ObjectOrientedActorTests {
 
         @Override
         public Receive<Object> createReceive() {
-            return newReceiveBuilder().onAnyMessage(msg -> Behaviors.stopped()).build();
+            return newReceiveBuilder() //
+                .onAnyMessage(msg -> Behaviors.stopped()) //
+                .build();
         }
     }
 

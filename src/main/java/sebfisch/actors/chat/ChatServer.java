@@ -75,9 +75,8 @@ public class ChatServer extends AbstractBehavior<Request> {
             ActorContext<ChatServer.Request> ctx = getContext();
             ActorRef<ChatServer.Request> self = ctx.getSelf();
             clients.keySet().forEach(other -> {
-                other.tell(new ChatClient.StatusChanged(msg.name, "joined"));
+                other.tell(new ChatClient.UserJoined(msg.name));
             });
-            // ctx.watchWith(msg.client, new Quit(msg.client));
             msg.client.tell(new ChatClient.LoggedIn(names, self));
             clients.put(msg.client, msg.name);
         }
@@ -103,7 +102,7 @@ public class ChatServer extends AbstractBehavior<Request> {
         if (name != null) {
             clients.remove(msg.client);
             clients.keySet().forEach(other -> {
-                other.tell(new ChatClient.StatusChanged(name, "left"));
+                other.tell(new ChatClient.UserLeft(name));
             });
         }
         return this;

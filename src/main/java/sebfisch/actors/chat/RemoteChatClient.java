@@ -11,6 +11,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import akka.actor.typed.ActorSystem;
+import akka.actor.typed.SupervisorStrategy;
+import akka.actor.typed.javadsl.Behaviors;
 
 public class RemoteChatClient {
     private static final BufferedReader STDIN = 
@@ -21,10 +23,12 @@ public class RemoteChatClient {
         int port = args.length > 1 ? Integer.parseInt(args[1]) : 44444;
 
         ActorSystem<ChatClient.Event> chatClient = 
-            ActorSystem.create(ChatClient.create(name), "chat-client",
+            ActorSystem.create( //
+                Behaviors.supervise(
+                    ChatClient.create(name, RemoteChatServer.PATH) //
+                ).onFailure(SupervisorStrategy.restart()), //
+                "chat-client", //
                 remoteConf(port));
-        
-        chatClient.tell(new ChatClient.Started(RemoteChatServer.PATH));
         
         System.out.println("Type 'quit' to exit, something else to send");
         try (Stream<String> lines = STDIN.lines()) {
@@ -34,7 +38,6 @@ public class RemoteChatClient {
                     chatClient.tell(new ChatClient.NewInput(line));
                 });
         } finally {
-            chatClient.tell(ChatClient.Exiting.INSTANCE);
             chatClient.terminate();
         }
     }

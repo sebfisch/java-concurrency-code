@@ -10,6 +10,8 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
 import akka.actor.typed.ActorSystem;
+import akka.actor.typed.SupervisorStrategy;
+import akka.actor.typed.javadsl.Behaviors;
 
 public class RemoteChatServer {
     public static final String HOST = "127.0.0.1";
@@ -23,7 +25,11 @@ public class RemoteChatServer {
 
     public static void main(String[] args) {        
         ActorSystem<ChatServer.Request> chatServer =
-            ActorSystem.create(ChatServer.create(), NAME, remoteConf());
+            ActorSystem.create( //
+                Behaviors.supervise(ChatServer.create())
+                    .onFailure(SupervisorStrategy.restart()), //
+                NAME, //
+                remoteConf());
         
         System.out.println("Type 'quit' to exit");
         try (Stream<String> lines = STDIN.lines()) {
