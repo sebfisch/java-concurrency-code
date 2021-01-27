@@ -1,7 +1,7 @@
 package sebfisch.actors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.Assert.assertNotNull;
 
 import java.util.stream.IntStream;
 
@@ -12,34 +12,21 @@ import akka.actor.testkit.typed.javadsl.TestProbe;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.SupervisorStrategy;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
-import sebfisch.actors.ObjectOrientedActorTests.Bouncer.Ping;
-import sebfisch.actors.ObjectOrientedActorTests.Bouncer.Pong;
-import sebfisch.actors.ObjectOrientedActorTests.Calculator.AddFraction;
-import sebfisch.actors.ObjectOrientedActorTests.Calculator.GetTotal;
-import sebfisch.actors.ObjectOrientedActorTests.Computer.Compute;
-import sebfisch.actors.ObjectOrientedActorTests.Computer.Forward;
-import sebfisch.actors.ObjectOrientedActorTests.Computer.Request;
-import sebfisch.actors.ObjectOrientedActorTests.Handshake.Self;
+import sebfisch.actors.FunctionalActorTests.Bouncer.Ping;
+import sebfisch.actors.FunctionalActorTests.Bouncer.Pong;
+import sebfisch.actors.FunctionalActorTests.Calculator.AddFraction;
+import sebfisch.actors.FunctionalActorTests.Calculator.GetTotal;
+import sebfisch.actors.FunctionalActorTests.Computer.Compute;
+import sebfisch.actors.FunctionalActorTests.Computer.Forward;
+import sebfisch.actors.FunctionalActorTests.Handshake.Self;
 
-public class ObjectOrientedActorTests {
+public class FunctionalActorTests {
     static final TestKitJunitResource KIT = new TestKitJunitResource();
 
-    static class Terminator extends AbstractBehavior<Object> {
+    static class Terminator {
         static Behavior<Object> create() {
-            return Behaviors.setup(Terminator::new);
-        }
-
-        Terminator(ActorContext<Object> ctx) {
-            super(ctx);
-        }
-
-        @Override
-        public Receive<Object> createReceive() {
-            return newReceiveBuilder().onAnyMessage(msg -> Behaviors.stopped()).build();
+            return Behaviors.receiveMessage(msg -> Behaviors.stopped());
         }
     }
 
@@ -50,32 +37,21 @@ public class ObjectOrientedActorTests {
         KIT.createTestProbe().expectTerminated(terminator);
     }
 
-    static class Bouncer extends AbstractBehavior<Ping> {
+    static class Bouncer {
         static class Ping {
             final ActorRef<Pong> sender;
-
             Ping(ActorRef<Pong> sender) {
                 this.sender = sender;
             }
         }
 
-        static class Pong {
-        }
+        static class Pong {}
 
         static Behavior<Ping> create() {
-            return Behaviors.setup(Bouncer::new);
-        }
-
-        Bouncer(ActorContext<Ping> ctx) {
-            super(ctx);
-        }
-
-        @Override
-        public Receive<Ping> createReceive() {
-            return newReceiveBuilder().onAnyMessage(ping -> {
+            return Behaviors.receiveMessage(ping -> {
                 ping.sender.tell(new Pong());
-                return this;
-            }).build();
+                return Behaviors.same();
+            });
         }
     }
 
@@ -83,13 +59,13 @@ public class ObjectOrientedActorTests {
     public void testThatBouncerBounces() {
         ActorRef<Ping> bouncer = KIT.spawn(Bouncer.create());
         TestProbe<Pong> probe = KIT.createTestProbe();
-        IntStream.range(0, 5).forEach(i -> {
+        IntStream.range(0,5).forEach(i -> {
             bouncer.tell(new Ping(probe.getRef()));
-            assertNotNull(probe.receiveMessage());
+            assertNotNull(probe.receiveMessage());    
         });
     }
 
-    static class Handshake extends AbstractBehavior<Self> {
+    static class Handshake {
         static class Self {
             final ActorRef<Self> sender;
 
@@ -99,19 +75,10 @@ public class ObjectOrientedActorTests {
         }
 
         static Behavior<Self> create() {
-            return Behaviors.setup(Handshake::new);
-        }
-
-        Handshake(ActorContext<Self> ctx) {
-            super(ctx);
-        }
-
-        @Override
-        public Receive<Self> createReceive() {
-            return newReceiveBuilder().onAnyMessage(msg -> {
-                msg.sender.tell(new Self(getContext().getSelf()));
-                return this;
-            }).build();
+            return Behaviors.receive((ctx, msg) -> {
+                msg.sender.tell(new Self(ctx.getSelf()));
+                return Behaviors.same();
+            });
         }
     }
 
@@ -123,13 +90,11 @@ public class ObjectOrientedActorTests {
         assertNotNull(probe.receiveMessage());
     }
 
-    static class Calculator extends AbstractBehavior<Calculator.Cmd> {
-        interface Cmd {
-        }
+    static class Calculator {
+        interface Cmd {}
 
         static class GetTotal implements Cmd {
             final ActorRef<Integer> sender;
-
             GetTotal(ActorRef<Integer> sender) {
                 this.sender = sender;
             }
@@ -138,7 +103,6 @@ public class ObjectOrientedActorTests {
         static class AddFraction implements Cmd {
             final int numerator;
             final int denominator;
-
             AddFraction(int numerator, int denominator) {
                 this.numerator = numerator;
                 this.denominator = denominator;
@@ -146,25 +110,15 @@ public class ObjectOrientedActorTests {
         }
 
         static Behavior<Cmd> create(int total) {
-            return Behaviors.setup(ctx -> new Calculator(ctx, total));
-        }
-
-        private int total;
-
-        Calculator(ActorContext<Cmd> ctx, int total) {
-            super(ctx);
-            this.total = total;
-        }
-
-        @Override
-        public Receive<Cmd> createReceive() {
-            return newReceiveBuilder().onMessage(GetTotal.class, msg -> {
-                msg.sender.tell(total);
-                return this;
-            }).onMessage(AddFraction.class, msg -> {
-                total += msg.numerator / msg.denominator;
-                return this;
-            }).build();
+            return Behaviors.receive(Cmd.class)
+                .onMessage(GetTotal.class, msg -> {
+                    msg.sender.tell(total);
+                    return Behaviors.same();
+                })
+                .onMessage(AddFraction.class, msg -> {
+                    return create(total + msg.numerator / msg.denominator);
+                })
+                .build();
         }
     }
 
@@ -173,8 +127,8 @@ public class ObjectOrientedActorTests {
         ActorRef<Calculator.Cmd> calculator = KIT.spawn(Calculator.create(0));
         TestProbe<Integer> probe = KIT.createTestProbe();
 
-        calculator.tell(new AddFraction(5, 2));
-        calculator.tell(new AddFraction(1, 2));
+        calculator.tell(new AddFraction(5,2));
+        calculator.tell(new AddFraction(1,2));        
         calculator.tell(new GetTotal(probe.getRef()));
 
         assertEquals(2, (int) probe.receiveMessage());
@@ -183,41 +137,41 @@ public class ObjectOrientedActorTests {
     @Test
     public void testThatCalculatorStopsOnCrash() {
         ActorRef<Calculator.Cmd> calculator = KIT.spawn(Calculator.create(0));
-        calculator.tell(new AddFraction(1, 0));
+        calculator.tell(new AddFraction(1,0));
         KIT.createTestProbe().expectTerminated(calculator);
     }
 
     @Test
     public void testThatResumingCalculatorResumesAfterCrash() {
         Behavior<Calculator.Cmd> resuming = //
-                Behaviors.supervise(Calculator.create(0)) //
-                        .onFailure(SupervisorStrategy.resume());
+            Behaviors.supervise(Calculator.create(0)) //
+                .onFailure(SupervisorStrategy.resume());
         ActorRef<Calculator.Cmd> calculator = KIT.spawn(resuming);
         TestProbe<Integer> probe = KIT.createTestProbe();
 
-        calculator.tell(new AddFraction(5, 2));
-        calculator.tell(new AddFraction(1, 0));
+        calculator.tell(new AddFraction(5,2));
+        calculator.tell(new AddFraction(1,0));
         calculator.tell(new GetTotal(probe.getRef()));
-
+        
         assertEquals(2, (int) probe.receiveMessage());
     }
 
     @Test
     public void testThatRestartingCalculatorRestartsAfterCrash() {
         Behavior<Calculator.Cmd> restarting = //
-                Behaviors.supervise(Calculator.create(0)) //
-                        .onFailure(SupervisorStrategy.restart());
+            Behaviors.supervise(Calculator.create(0)) //
+                .onFailure(SupervisorStrategy.restart());
         ActorRef<Calculator.Cmd> calculator = KIT.spawn(restarting);
         TestProbe<Integer> probe = KIT.createTestProbe();
 
-        calculator.tell(new AddFraction(5, 2));
-        calculator.tell(new AddFraction(1, 0));
+        calculator.tell(new AddFraction(5,2));
+        calculator.tell(new AddFraction(1,0));
         calculator.tell(new GetTotal(probe.getRef()));
-
+        
         assertEquals(0, (int) probe.receiveMessage());
     }
 
-    static class Computer extends AbstractBehavior<Request> {
+    static class Computer {
         interface Request {}
 
         static class Forward implements Request {
@@ -241,27 +195,19 @@ public class ObjectOrientedActorTests {
                 ActorRef<Calculator.Cmd> calc = ctx.spawnAnonymous( //
                     Calculator.create(0));
                 ctx.watch(calc); // death pact
-                return new Computer(ctx, calc);
+                return computer(calc);
             });
         }
 
-        private final ActorRef<Calculator.Cmd> calc;
-
-        Computer(ActorContext<Request> ctx, ActorRef<Calculator.Cmd> calc) {
-            super(ctx);
-            this.calc = calc;
-        }
-
-        @Override
-        public Receive<Request> createReceive() {
-            return newReceiveBuilder()
+        private static Behavior<Request> computer(ActorRef<Calculator.Cmd> calc) {
+            return Behaviors.receive(Request.class)
                 .onMessage(Forward.class, msg -> {
                     calc.tell(msg.cmd);
-                    return this;
+                    return Behaviors.same();
                 })
                 .onMessage(Compute.class, msg -> {
                     calc.tell(new Calculator.AddFraction(100, msg.arg));
-                    return this;
+                    return Behaviors.same();
                 })
                 .build();
         }
