@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.PostStop;
+import akka.actor.typed.PreRestart;
 import akka.actor.typed.javadsl.AbstractBehavior;
 import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Adapter;
@@ -101,6 +102,7 @@ public class ChatClient extends AbstractBehavior<Event> {
             .onMessage(NewMessage.class, this::respond)
             .onMessage(UserJoined.class, this::respond)
             .onMessage(UserLeft.class, this::respond)
+            .onSignal(PreRestart.class, signal -> quit())
             .onSignal(PostStop.class, signal -> quit())
             .build();
     }
