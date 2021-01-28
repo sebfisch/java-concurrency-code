@@ -79,13 +79,8 @@ public class EchoClient extends AbstractBehavior<Request> {
         ctx.getSystem().classicSystem().actorSelection(msg.path) //
             .resolveOne(Duration.ofSeconds(timeout)) //
             .thenApply(this::toTyped) //
-            .whenComplete((server, error) -> {
-                if (error != null) {
-                    ctx.getLog().error("{}", error);
-                }
-                if (server != null) {
-                    ctx.getSelf().tell(new Send(msg.text, server));
-                }
+            .thenAccept(server -> {
+                ctx.getSelf().tell(new Send(msg.text, server));
             });
         
         return this;
