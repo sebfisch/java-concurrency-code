@@ -11,8 +11,9 @@ public class MultiThreadedRenderer extends RendererAdapter<StreamRenderer> {
     }
 
     @Override
-    public boolean render(final Box pixels) {
-        final List<Thread> threads = pixels.split() //
+    public boolean render(final Box box) {
+        // TODO [Task 2.1, Threads] use custom Interruptible instance
+        final List<Thread> threads = box.split() //
             .map(part -> (Runnable) () -> renderer.render(part)) //
             .map(Thread::new) //
             .collect(Collectors.toList());
@@ -24,6 +25,7 @@ public class MultiThreadedRenderer extends RendererAdapter<StreamRenderer> {
         threads.forEach(Thread::start);
     }
 
+    // TODO [Task 2.2, Threads] simplify join method
     private boolean join(final List<Thread> threads) {
         while (threads.stream().anyMatch(Thread::isAlive)) {
             if (Thread.currentThread().isInterrupted()) {

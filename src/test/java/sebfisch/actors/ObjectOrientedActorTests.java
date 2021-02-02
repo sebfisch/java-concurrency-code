@@ -90,7 +90,7 @@ public class ObjectOrientedActorTests {
         });
     }
 
-    // TODO [Task 1] add handshake test
+    // TODO [Task 1, Actors] add handshake test
 
     static class Calculator extends AbstractBehavior<Calculator.Cmd> {
         interface Cmd {
@@ -174,7 +174,7 @@ public class ObjectOrientedActorTests {
     @Test
     public void testThatRestartingCalculatorRestartsAfterCrash() {
         Behavior<Calculator.Cmd> restarting = //
-                Behaviors.supervise(Calculator.create(0)) //
+                Behaviors.supervise(Calculator.create(42)) //
                         .onFailure(SupervisorStrategy.restart());
         ActorRef<Calculator.Cmd> calculator = KIT.spawn(restarting);
         TestProbe<Integer> probe = KIT.createTestProbe();
@@ -183,7 +183,7 @@ public class ObjectOrientedActorTests {
         calculator.tell(new AddFraction(1, 0));
         calculator.tell(new GetTotal(probe.getRef()));
 
-        assertEquals(0, (int) probe.receiveMessage());
+        assertEquals(42, (int) probe.receiveMessage());
     }
 
     static class Computer extends AbstractBehavior<Request> {

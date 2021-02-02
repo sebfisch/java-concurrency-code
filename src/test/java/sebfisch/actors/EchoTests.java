@@ -13,7 +13,7 @@ import sebfisch.actors.echo.EchoServer;
 public class EchoTests {
     static final TestKitJunitResource KIT = new TestKitJunitResource();
 
-    // TODO [Task 2.2] add test for echo server
+    // TODO [Task 2.2, Actors] add test for echo server
 
     @Test
     public void testThatEchoClientSendsGivenMessage() {

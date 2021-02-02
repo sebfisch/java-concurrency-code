@@ -188,4 +188,6 @@ public class ClassicTests {
 
         assertTrue(IntStream.generate(handshake).limit(100).allMatch(n -> n == 0));
     }
+
+    // TODO [Task 5, Threads] write new test suite for Lock and Condition
 }

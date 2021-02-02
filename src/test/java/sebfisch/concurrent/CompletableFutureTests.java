@@ -46,4 +46,6 @@ public class CompletableFutureTests {
             CompletableFuture.completedFuture(string+string));
         assertEquals("haha", combinedFuture.join());
     }
+
+    // TODO [Task 6, Threads] write tests involving exceptions
 }

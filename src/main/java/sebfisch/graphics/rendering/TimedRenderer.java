@@ -10,9 +10,9 @@ public class TimedRenderer<R extends Renderer> extends RendererAdapter<R> {
     }
 
     @Override
-    public boolean render(final Box pixels) {
+    public boolean render(final Box box) {
         final Instant start = Instant.now();
-        final boolean completed = renderer.render(pixels);
+        final boolean completed = renderer.render(box);
         final Duration duration = Duration.between(start, Instant.now());
         final String status = completed ? "Completed" : "Aborted";
         System.out.println(status + " after " + duration);

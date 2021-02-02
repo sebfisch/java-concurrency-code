@@ -54,25 +54,25 @@ public class EchoClient extends AbstractBehavior<Request> {
     @Override
     public Receive<Request> createReceive() {
         return newReceiveBuilder()
-            .onMessage(Send.class, this::respond)
-            .onMessage(Log.class, this::respond)
-            .onMessage(SendRemote.class, this::respond)
+            .onMessage(Send.class, this::receive)
+            .onMessage(Log.class, this::receive)
+            .onMessage(SendRemote.class, this::receive)
             .build();
     }
 
-    private EchoClient respond(Send msg) {
+    private EchoClient receive(Send msg) {
         final ActorRef<EchoServer.Response> logAdapter =
             getContext().messageAdapter(EchoServer.Response.class, Log::new);
         msg.server.tell(new EchoServer.Request(msg.text, logAdapter));
         return this;
     }
 
-    private EchoClient respond(Log msg) {
+    private EchoClient receive(Log msg) {
         System.out.printf("received: %s%n", msg.response.text);
         return this;
     }
 
-    private EchoClient respond(SendRemote msg) {
+    private EchoClient receive(SendRemote msg) {
         final int timeout = 10;
         final ActorContext<Request> ctx = getContext();
 

@@ -3,6 +3,7 @@ package sebfisch.concurrent;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CancellationException;
@@ -14,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.RecursiveTask;
 import java.util.concurrent.TimeUnit;
+
 import org.junit.jupiter.api.Test;
 
 public class ThreadPoolTests {
@@ -69,6 +71,8 @@ public class ThreadPoolTests {
         assertTrue(cancelled);
         // assertEquals(1, interruptions.size()); // fails with maven
     }
+
+    // TODO [Task 3, Threads] write more tests
 
     @Test
     void testRecursiveTasks() {

@@ -39,6 +39,6 @@ public class ChatServer {
     }
 
     public static Behavior<Request> create() {
-        return null; // TODO [Task 6] complete chat server
+        return null; // TODO [Task 6, Actors] complete chat server
     }
 }

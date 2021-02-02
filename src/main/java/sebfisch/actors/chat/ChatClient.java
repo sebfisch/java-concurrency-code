@@ -95,19 +95,19 @@ public class ChatClient extends AbstractBehavior<Event> {
     @Override
     public Receive<Event> createReceive() {
         return newReceiveBuilder()
-            .onMessage(Created.class, this::respond)
-            .onMessage(Error.class, this::respond)
-            .onMessage(LoggedIn.class, this::respond)
-            .onMessage(NewInput.class, this::respond)
-            .onMessage(NewMessage.class, this::respond)
-            .onMessage(UserJoined.class, this::respond)
-            .onMessage(UserLeft.class, this::respond)
+            .onMessage(Created.class, this::receive)
+            .onMessage(Error.class, this::receive)
+            .onMessage(LoggedIn.class, this::receive)
+            .onMessage(NewInput.class, this::receive)
+            .onMessage(NewMessage.class, this::receive)
+            .onMessage(UserJoined.class, this::receive)
+            .onMessage(UserLeft.class, this::receive)
             .onSignal(PreRestart.class, signal -> quit())
             .onSignal(PostStop.class, signal -> quit())
             .build();
     }
 
-    private ChatClient respond(Created msg) {
+    private ChatClient receive(Created msg) {
         ActorContext<Event> ctx = getContext();
         ActorRef<Event> self = ctx.getSelf();
         ctx.getSystem().classicSystem().actorSelection(path) //
@@ -115,7 +115,7 @@ public class ChatClient extends AbstractBehavior<Event> {
         return this;
     }
 
-    private ChatClient respond(Error error) {
+    private ChatClient receive(Error error) {
         System.out.println(error.message);
         if (!Error.NAME_ALREADY_TAKEN.equals(error)) {
             throw new IllegalStateException(error.message);
@@ -123,7 +123,7 @@ public class ChatClient extends AbstractBehavior<Event> {
         return this;
     }
 
-    private ChatClient respond(LoggedIn msg) {
+    private ChatClient receive(LoggedIn msg) {
         server = msg.server;
         if (msg.users.isEmpty()) {
             System.out.println("There are no other logged in users.");
@@ -134,22 +134,22 @@ public class ChatClient extends AbstractBehavior<Event> {
         return this;
     }
 
-    private ChatClient respond(NewInput msg) {
+    private ChatClient receive(NewInput msg) {
         server.tell(new ChatServer.Send(msg.text, getContext().getSelf()));
         return this;
     }
 
-    private ChatClient respond(NewMessage msg) {
+    private ChatClient receive(NewMessage msg) {
         System.out.printf("%s: %s%n", msg.user, msg.text);
         return this;
     }
 
-    private ChatClient respond(UserJoined msg) {
+    private ChatClient receive(UserJoined msg) {
         System.out.printf("%s joined the chat.%n", msg.user);
         return this;
     }
 
-    private ChatClient respond(UserLeft msg) {
+    private ChatClient receive(UserLeft msg) {
         System.out.printf("%s left the chat.%n", msg.user);
         return this;
     }

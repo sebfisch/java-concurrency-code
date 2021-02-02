@@ -25,7 +25,7 @@ public class ImageCanvas extends Canvas implements PixelRaster {
     private Future<?> repainting;
     private Future<?> rendering;
     private BufferedImage buffer;
-    private Box pixels;
+    private Box box;
     private boolean needsUpdate;
 
     public ImageCanvas(final Renderer renderer) {
@@ -85,13 +85,13 @@ public class ImageCanvas extends Canvas implements PixelRaster {
 
     private void updatePixels() {
         if (needsUpdate) {
-            pixels = new Box( //
+            box = new Box( //
                 new Pixel(0, 0), new Pixel(getWidth(), getHeight()));
         }
     }
 
     private void restartRendering() {
-        if (needsUpdate && pixels != null) {
+        if (needsUpdate && box != null) {
             stopRendering();
             rendering = service.submit(this::render);
         }
@@ -105,7 +105,7 @@ public class ImageCanvas extends Canvas implements PixelRaster {
 
     private void render() {
         resumeRepainting();
-        if (renderer.render(pixels)) {
+        if (renderer.render(box)) {
             pauseRepainting();
             repaint();
         }

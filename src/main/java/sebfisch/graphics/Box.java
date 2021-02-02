@@ -1,5 +1,6 @@
 package sebfisch.graphics;
 
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 public final class Box {
@@ -9,6 +10,11 @@ public final class Box {
     public Box(final Pixel min, final Pixel size) {
         this.min = min;
         this.size = size;
+    }
+
+    public Stream<Pixel> pixels() {
+        return IntStream.range(0, size.x * size.y).mapToObj(index -> 
+            new Pixel(index % size.x, index / size.x).plus(min));
     }
 
     public Stream<Box> split(final int rows, final int cols) {

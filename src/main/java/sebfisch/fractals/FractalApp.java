@@ -42,6 +42,7 @@ public class FractalApp {
         // image = new JuliaSet(new Point(-1.476, 0.0));
         adjustMaxIter();
 
+        // TODO [Task 1, Threads] try different renderers
         final Renderer renderer = new TimedRenderer<>( //
             new StreamRenderer() // 25s
             // new MultiThreadedRenderer() // 11s

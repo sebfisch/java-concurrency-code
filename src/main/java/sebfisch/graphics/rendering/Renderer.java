@@ -14,5 +14,5 @@ public interface Renderer {
     PixelRaster getRaster();
     void setRaster(PixelRaster raster);
 
-    boolean render(Box pixels);
+    boolean render(Box box);
 }
